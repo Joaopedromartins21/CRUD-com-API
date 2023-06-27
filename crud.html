@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>CRUD</title>
+  <link rel="stylesheet" type="text/css" href="css/style.css">
+  
+</head>
+<body>
+  <h1>CRUD</h1>
+<div class="container">
+  <h2>Adicionar Usuário</h2>
+  <form id="add-user-form">
+    <label for="nome">Nome:</label>
+    <input type="text" id="nome" required>
+    <br>
+    <label for="email">Email:</label>
+    <input type="email" id="email" required>
+    <br>
+    <label for="senha">Senha:</label>
+    <input type="password" id="senha" required>
+    <br>
+    <label for="cpf">CPF:</label>
+    <input type="text" id="cpf" required>
+    <br>
+    <button type="submit" class="button">Adicionar</button>
+  </form>
+</div>
+  <div class="container">
+  <h2>Usuários</h2>
+  <table id="users-table">
+    <thead>
+      <tr class="tabela">
+        <th>ID</th>
+        <th>Nome</th>
+        <th>Email</th>
+        <th>CPF</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+    </tbody>
+  </table>
+</div>
+
+  <script>
+    function loadUsers() {
+      fetch('http://localhost:3000/users')
+        .then(response => response.json())
+        .then(users => {
+          const tableBody = document.querySelector('#users-table tbody');
+          tableBody.innerHTML = '';
+
+          users.forEach(user => {
+            const row = `
+              <tr>
+                <td>${user.id}</td>
+                <td>${user.nome}</td>
+                <td>${user.email}</td>
+                <td>${user.cpf}</td>
+                <td>
+                  <button onclick="editUser('${user.id}')">Editar</button>
+                  <button onclick="deleteUser('${user.id}')">Excluir</button>
+                </td>
+              </tr>
+            `;
+
+            tableBody.innerHTML += row;
+          });
+        })
+        .catch(error => console.error('Erro ao carregar os usuários:', error));
+    }
+
+    document.querySelector('#add-user-form').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      const nome = document.querySelector('#nome').value;
+      const email = document.querySelector('#email').value;
+      const senha = document.querySelector('#senha').value;
+      const cpf = document.querySelector('#cpf').value;
+
+      const user = {
+        nome: nome,
+        email: email,
+        senha: senha,
+        cpf: cpf
+      };
+
+      fetch('http://localhost:3000/users', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(user)
+      })
+        .then(response => {
+          if (response.ok) {
+            document.querySelector('#nome').value = '';
+            document.querySelector('#email').value = '';
+            document.querySelector('#senha').value = '';
+            document.querySelector('#cpf').value = '';
+            loadUsers();
+          } else {
+            console.error('Erro ao adicionar o usuário:', response.statusText);
+          }
+        })
+        .catch(error => console.error('Erro ao adicionar o usuário:', error));
+    });
+
+    function editUser(id) {
+      console.log('Editar usuário com ID:', id);
+      console.log('Editar usuário com ID:', id);
+
+  const nome = prompt('Digite o novo nome:');
+  const email = prompt('Digite o novo email:');
+  const senha = prompt('Digite a nova senha:');
+  const cpf = prompt('Digite o novo CPF:');
+
+  const user = {
+    nome,
+    email,
+    senha,
+    cpf
+  };
+
+  fetch(`http://localhost:3000/users/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(user)
+  })
+    .then(response => {
+      if (response.ok) {
+        loadUsers();
+      } else {
+        console.error('Erro ao editar o usuário:', response.statusText);
+      }
+    })
+    .catch(error => console.error('Erro ao editar o usuário:', error));
+
+    }
+
+    function deleteUser(id) {
+      console.log('Excluir usuário com ID:', id);
+
+  if (confirm('Deseja excluir este usuário?')) {
+    fetch(`http://localhost:3000/users/${id}`, {
+      method: 'DELETE'
+    })
+      .then(response => {
+        if (response.ok) {
+          loadUsers();
+        } else {
+          console.error('Erro ao excluir o usuário:', response.statusText);
+        }
+      })
+      .catch(error => console.error('Erro ao excluir o usuário:', error));
+  }
+    }
+
+    loadUsers();
+  </script>
+</body>
+</html>
